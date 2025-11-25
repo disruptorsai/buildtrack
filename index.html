@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>BuildTrack - Construction Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: '#FF6B35', // Safety Orange
+                50: '#FFF0E6',
+                100: '#FFDBC2',
+                500: '#FF6B35',
+                600: '#E85A24',
+                700: '#C44616',
+              },
+              secondary: {
+                DEFAULT: '#2E5077', // Steel Blue
+                50: '#E6EAEE',
+                500: '#2E5077',
+                800: '#1A2F46',
+                900: '#0F1C2B',
+              },
+              accent: {
+                teal: '#17A2B8',
+                gray: '#4A5859',
+              },
+              status: {
+                success: '#28A745',
+                warning: '#FFC107',
+                danger: '#DC3545',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+              script: ['Caveat', 'cursive'],
+            },
+          },
+        },
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "clsx": "https://aistudiocdn.com/clsx@^2.1.1"
+  }
+}
+</script>
+</head>
+  <body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-white transition-colors duration-200">
+    <div id="root"></div>
+  </body>
+</html>

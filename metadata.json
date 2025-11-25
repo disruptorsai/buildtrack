@@ -1,0 +1,9 @@
+{
+  "name": "BuildTrack",
+  "description": "A mission-critical construction operations management platform featuring GPS time tracking, FMCSA driver logs, and intelligent project scheduling.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
