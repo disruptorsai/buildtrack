@@ -73,16 +73,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30">
-        <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
           <img
             src="https://i.ibb.co/svGhm1SY/Generated-Image-November-29-2025-3-16-PM.jpg"
             alt="BuildTrack Logo"
-            className="h-10 w-auto rounded-lg"
+            className="w-full h-auto rounded-lg"
           />
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-secondary-900 dark:text-white">BuildTrack</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Pro Edition</p>
-          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto py-6 px-3">
@@ -116,14 +112,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-20">
-          <div className="flex items-center gap-2">
-            <img
-              src="https://i.ibb.co/svGhm1SY/Generated-Image-November-29-2025-3-16-PM.jpg"
-              alt="BuildTrack Logo"
-              className="h-8 w-auto rounded"
-            />
-            <span className="font-bold text-lg text-secondary-900 dark:text-white">BuildTrack</span>
-          </div>
+          <img
+            src="https://i.ibb.co/svGhm1SY/Generated-Image-November-29-2025-3-16-PM.jpg"
+            alt="BuildTrack Logo"
+            className="h-10 w-auto rounded"
+          />
           <div className="flex items-center gap-4">
              <Bell size={20} className="text-slate-600 dark:text-slate-300" />
              <img src={CURRENT_USER.avatar} alt="Profile" className="w-8 h-8 rounded-full" />
