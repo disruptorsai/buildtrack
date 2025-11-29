@@ -51,11 +51,12 @@ export const predictProjectRisks = async (projectSummary: string): Promise<strin
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(`
-**Project Risk Assessment**
+**Project Risk Assessment - Eaglewood Retail Center**
 
-*   **Schedule Risk (High)**: Current burn rate suggests a 2-week delay in the 'Framing' phase due to crew shortages.
-*   **Budget (Medium)**: Material costs for steel are trending 5% over baseline.
-*   **Weather**: Upcoming storm front next week may impact the concrete pour scheduled for Tuesday.
+*   **Schedule Risk (High)**: Current burn rate suggests a 2-week delay in Metal Stud Framing due to crew shortages in Davis County area.
+*   **Budget (Medium)**: Steel material costs from Staker Parson trending 8% over baseline.
+*   **Weather**: Snow forecast for Wednesday may impact the Building B concrete pour. Consider rescheduling with Geneva Rock.
+*   **Inspection**: Davis County inspection Dec 5th - ensure fire sprinkler RFI #007 is resolved.
         `);
       }, 1500);
     });
@@ -76,10 +77,11 @@ export const analyzeBlueprint = async (imageUrl: string): Promise<string> => {
       setTimeout(
         () =>
           resolve(`
-**Blueprint Analysis**
-*   **Room Detection**: Detected 4 main rooms and 1 corridor.
-*   **Potential Clash**: Grid line C-4 shows a potential conflict between structural column and HVAC supply.
-*   **Measurement**: Main corridor width appears to be 8ft.
+**Blueprint Analysis - Eaglewood Retail A-101**
+*   **Tenant Spaces**: Detected 5 retail suites and common corridor per Orchard Drive frontage.
+*   **Potential Clash**: Grid line C-4 shows conflict between HVAC supply duct and structural beam. Coordinate with Hughes GC.
+*   **ADA Compliance**: Verify entrance ramp slope meets Utah accessibility code (max 8.33%).
+*   **Fire Safety**: Suite 102 dropped ceiling requires sprinkler head spacing verification per Davis County Fire Authority.
       `),
         2000
       )
@@ -104,10 +106,10 @@ export const generateRFI = async (
       setTimeout(
         () =>
           resolve({
-            subject: "Clarification on Rebar Spacing at Grid C-4",
+            subject: "Storefront Glazing Header Detail at Suite 103",
             question:
-              "Regarding the column schedule on S-201, the rebar spacing is listed as 4 inches on center, but the architectural detail A-505 shows a 6-inch assembly. Please clarify the correct spacing to proceed with fabrication.",
-            impact: "Cost: Neutral | Schedule: Potential 2-day delay for fabrication",
+              "Drawing A-301 shows a 6\" steel header above the storefront glazing at Suite 103, but structural drawing S-102 indicates an 8\" beam at this location. Please clarify the correct header size to coordinate with Orchard Drive elevation requirements and proceed with Wasatch Steel fabrication.",
+            impact: "Cost: Potential $3,200 | Schedule: 3-day delay for steel re-fabrication if 8\" required",
           }),
         2500
       )

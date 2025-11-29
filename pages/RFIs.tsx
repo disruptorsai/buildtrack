@@ -16,7 +16,7 @@ export const RFIs: React.FC = () => {
 
   const handleGenerate = async () => {
      setIsGenerating(true);
-     const result = await generateRFI(roughNotes, "Project: Phoenix Medical Center. Current Phase: Structural Steel.");
+     const result = await generateRFI(roughNotes, "Project: Eaglewood Retail Center, North Salt Lake UT. Current Phase: Structural Steel & Concrete.");
      setGeneratedDraft({
         subject: result.subject,
         question: result.question,

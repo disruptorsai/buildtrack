@@ -33,13 +33,13 @@ export const DriverLog: React.FC = () => {
               <div className="flex justify-between border-b-2 border-black pb-4 mb-6">
                  <div>
                     <h2 className="text-2xl font-bold mb-1">DRIVER'S DAILY LOG</h2>
-                    <p>Phoenix Construction Inc.</p>
-                    <p>USDOT #: 1948291</p>
+                    <p>Acme Construction - North Salt Lake</p>
+                    <p>USDOT #: 2847193</p>
                  </div>
                  <div className="text-right">
                     <p>Date: {new Date().toLocaleDateString()}</p>
                     <p>Driver: {CURRENT_USER.name}</p>
-                    <p>Lic: AZ-99283-C</p>
+                    <p>Lic: UT-284719-CDL</p>
                  </div>
               </div>
 

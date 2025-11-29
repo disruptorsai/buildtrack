@@ -11,7 +11,7 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     // Simulate fetching an AI insight on mount
     setLoadingInsight(true);
-    predictProjectRisks("Project Phoenix is 65% complete but running 10% over budget on steel materials. Crew availability is tight next week.")
+    predictProjectRisks("Eaglewood Retail Center in North Salt Lake is 65% complete but running 10% over budget on steel materials. Davis County inspection scheduled next week. Snow forecast may impact concrete pour.")
       .then(res => {
         setInsight(res);
         setLoadingInsight(false);
@@ -159,7 +159,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm text-slate-900 dark:text-white">
-                      <span className="font-medium">Sarah Jenkins</span> uploaded a safety inspection for <span className="font-medium">Phoenix Medical</span>
+                      <span className="font-medium">Derek Sorensen</span> uploaded a safety inspection for <span className="font-medium">Eaglewood Retail</span>
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">2 hours ago</p>
                   </div>

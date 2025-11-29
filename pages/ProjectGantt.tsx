@@ -30,7 +30,7 @@ export const ProjectGantt: React.FC = () => {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <Calendar className="text-primary-500" />
-          Project Schedule: Phoenix Medical
+          Project Schedule: Eaglewood Retail
         </h2>
         <div className="flex bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-1">
           <button 
