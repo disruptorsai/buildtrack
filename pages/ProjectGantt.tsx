@@ -126,7 +126,7 @@ export const ProjectGantt: React.FC = () => {
                           style={{ width: `${task.progress}%` }}
                         >
                           {/* Striped Pattern Overlay */}
-                          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)', backgroundSize: '1rem 1rem' }}></div>
+                          <div className="absolute inset-0 opacity-20 bg-white/10"></div>
                         </div>
 
                         {/* Budget Health Strip */}

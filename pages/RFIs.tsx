@@ -147,11 +147,11 @@ export const RFIs: React.FC = () => {
                   </div>
                </div>
             ) : (
-               <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-6 text-white text-center">
+               <div className="bg-secondary-800 rounded-xl p-6 text-white text-center">
                   <Sparkles size={48} className="mx-auto mb-4 opacity-50" />
                   <h3 className="font-bold text-lg mb-2">Need to write an RFI?</h3>
-                  <p className="text-indigo-100 text-sm mb-4">Just type your rough notes or dictate the problem. Our AI will format it professionally and predict schedule impact.</p>
-                  <button onClick={() => setIsDrafting(true)} className="bg-white text-indigo-600 px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 transition-transform">
+                  <p className="text-secondary-200 text-sm mb-4">Just type your rough notes or dictate the problem. Our AI will format it professionally and predict schedule impact.</p>
+                  <button onClick={() => setIsDrafting(true)} className="bg-white text-secondary-800 px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 transition-transform">
                      Try AI Drafter
                   </button>
                </div>

@@ -105,7 +105,7 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* AI Insight Card */}
-          <div className="bg-gradient-to-br from-indigo-900 to-secondary-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+          <div className="bg-secondary-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
              <div className="absolute top-0 right-0 p-3 opacity-10">
                 <TrendingUp size={120} />
              </div>
