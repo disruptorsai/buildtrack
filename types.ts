@@ -25,6 +25,15 @@ export interface Project {
   endDate: string;
 }
 
+export type ScheduleTaskStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'DELAYED' | 'COMPLETED' | 'ON_HOLD';
+export type DependencyType = 'FS' | 'FF' | 'SS' | 'SF'; // Finish-to-Start, Finish-to-Finish, Start-to-Start, Start-to-Finish
+
+export interface TaskDependency {
+  taskId: string;
+  type: DependencyType;
+  lagDays?: number; // positive = delay, negative = overlap
+}
+
 export interface Task {
   id: string;
   projectId: string;
@@ -36,6 +45,22 @@ export interface Task {
   requiredCrew: number;
   budget: number;
   spent: number;
+  // New scheduling fields
+  status: ScheduleTaskStatus;
+  predecessors: TaskDependency[];
+  isMilestone: boolean;
+  phase?: string; // e.g., "Foundation", "Framing", "MEP", "Finishes"
+  actualStartDate?: string;
+  actualEndDate?: string;
+  notes?: string;
+  priority: TaskPriority;
+  // Critical path fields (calculated)
+  isOnCriticalPath?: boolean;
+  slack?: number; // days of float
+  earlyStart?: string;
+  earlyFinish?: string;
+  lateStart?: string;
+  lateFinish?: string;
 }
 
 export interface PlanFolder {
