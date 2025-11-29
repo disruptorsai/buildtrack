@@ -138,7 +138,7 @@ export const Plans: React.FC = () => {
            <div className="mt-auto">
               <button 
                 onClick={handleAnalyze}
-                className={`p-3 rounded-xl transition-all ${isAnalyzing ? 'bg-indigo-100 text-indigo-600 animate-pulse' : 'text-slate-400 hover:text-indigo-500'}`}
+                className={`p-3 rounded-xl transition-all ${isAnalyzing ? 'bg-primary-100 text-primary-600 animate-pulse' : 'text-slate-400 hover:text-primary-500'}`}
                 title="AI Scan"
               >
                  <ScanEye />
@@ -209,14 +209,14 @@ export const Plans: React.FC = () => {
 
                  {/* AI Overlay */}
                  {analysisResult && (
-                    <div className="absolute top-10 right-10 max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur p-6 rounded-xl shadow-2xl border border-indigo-500 z-30 pointer-events-auto">
+                    <div className="absolute top-10 right-10 max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur p-6 rounded-xl shadow-2xl border border-primary-500 z-30 pointer-events-auto">
                        <div className="flex justify-between items-start mb-4">
-                          <h3 className="font-bold text-indigo-700 dark:text-indigo-400 flex items-center gap-2">
+                          <h3 className="font-bold text-primary-700 dark:text-primary-400 flex items-center gap-2">
                              <ScanEye size={20} /> Analysis Report
                           </h3>
                           <button onClick={() => setAnalysisResult(null)}><X size={16} /></button>
                        </div>
-                       <div className="prose prose-sm prose-indigo dark:prose-invert">
+                       <div className="prose prose-sm dark:prose-invert">
                           <div dangerouslySetInnerHTML={{ __html: analysisResult.replace(/\n/g, '<br/>') }} />
                        </div>
                     </div>

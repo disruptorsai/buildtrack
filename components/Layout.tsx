@@ -1,19 +1,18 @@
 
 import React, { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Clock, 
-  CalendarDays, 
-  Truck, 
-  FileText, 
-  PieChart, 
-  Menu, 
-  X, 
+import {
+  LayoutDashboard,
+  Clock,
+  CalendarDays,
+  Truck,
+  FileText,
+  PieChart,
+  Menu,
+  X,
   Settings,
   Bell,
   LogOut,
   User as UserIcon,
-  HardHat,
   Map,
   FileQuestion
 } from 'lucide-react';
@@ -75,9 +74,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30">
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center text-white">
-            <HardHat size={24} />
-          </div>
+          <img
+            src="https://i.ibb.co/svGhm1SY/Generated-Image-November-29-2025-3-16-PM.jpg"
+            alt="BuildTrack Logo"
+            className="h-10 w-auto rounded-lg"
+          />
           <div>
             <h1 className="text-xl font-bold tracking-tight text-secondary-900 dark:text-white">BuildTrack</h1>
             <p className="text-xs text-slate-500 dark:text-slate-400">Pro Edition</p>
@@ -116,9 +117,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-20">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary-500 rounded flex items-center justify-center text-white">
-              <HardHat size={18} />
-            </div>
+            <img
+              src="https://i.ibb.co/svGhm1SY/Generated-Image-November-29-2025-3-16-PM.jpg"
+              alt="BuildTrack Logo"
+              className="h-8 w-auto rounded"
+            />
             <span className="font-bold text-lg text-secondary-900 dark:text-white">BuildTrack</span>
           </div>
           <div className="flex items-center gap-4">

@@ -84,7 +84,7 @@ export const RFIs: React.FC = () => {
                      <div className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded">
                         <DollarSign size={12} /> {rfi.costImpact || 'None'}
                      </div>
-                     <div className="flex items-center gap-1 text-indigo-600 bg-indigo-50 px-2 py-1 rounded">
+                     <div className="flex items-center gap-1 text-secondary-600 bg-secondary-50 px-2 py-1 rounded">
                         <Clock size={12} /> {rfi.scheduleImpact || 'None'}
                      </div>
                   </div>
