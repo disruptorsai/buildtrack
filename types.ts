@@ -1,3 +1,4 @@
+
 export enum UserRole {
   EMPLOYEE = 'EMPLOYEE',
   FOREMAN = 'FOREMAN',
@@ -35,6 +36,51 @@ export interface Task {
   requiredCrew: number;
   budget: number;
   spent: number;
+}
+
+export interface PlanFolder {
+  id: string;
+  name: string;
+  count: number;
+}
+
+export interface Plan {
+  id: string;
+  projectId: string;
+  folderId: string;
+  name: string;
+  version: string;
+  imageUrl: string;
+  uploadDate: string;
+}
+
+export type TaskStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'VERIFIED';
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface FieldIssue {
+  id: string;
+  planId: string;
+  x: number; // Percentage 0-100 relative to plan image
+  y: number; // Percentage 0-100 relative to plan image
+  status: TaskStatus;
+  priority: TaskPriority;
+  description: string;
+  assignedTo?: string;
+  category?: 'Safety' | 'Quality' | 'Punch List';
+  dueDate?: string;
+}
+
+export interface RFI {
+  id: string;
+  projectId: string;
+  number: string;
+  subject: string;
+  question: string;
+  status: 'DRAFT' | 'OPEN' | 'CLOSED';
+  costImpact?: string;
+  scheduleImpact?: string;
+  assignedTo: string;
+  dueDate: string;
 }
 
 export interface TimeEntry {

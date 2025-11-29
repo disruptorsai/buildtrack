@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
@@ -12,7 +13,9 @@ import {
   Bell,
   LogOut,
   User as UserIcon,
-  HardHat
+  HardHat,
+  Map,
+  FileQuestion
 } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import clsx from 'clsx';
@@ -51,11 +54,17 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon: Icon, label, mobile = false
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  
+  // Disable global scroll for plans page to allow canvas pan/zoom
+  const isPlansPage = location.pathname === '/plans';
 
   const navigation = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/time', icon: Clock, label: 'Time Clock' },
+    { to: '/plans', icon: Map, label: 'Plans & Pins' },
     { to: '/schedule', icon: CalendarDays, label: 'Schedule' },
+    { to: '/rfis', icon: FileQuestion, label: 'RFIs' },
     { to: '/fleet', icon: Truck, label: 'Fleet & Logs' },
     { to: '/forms', icon: FileText, label: 'Forms' },
     { to: '/financials', icon: PieChart, label: 'Financials' },
@@ -64,7 +73,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+      <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30">
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
           <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center text-white">
             <HardHat size={24} />
@@ -119,8 +128,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 pb-24 md:pb-8">
-          <div className="max-w-7xl mx-auto">
+        <div className={clsx(
+          "flex-1 relative", 
+          isPlansPage ? "overflow-hidden p-0" : "overflow-y-auto overflow-x-hidden p-4 md:p-8 pb-24 md:pb-8"
+        )}>
+          <div className={isPlansPage ? "h-full" : "max-w-7xl mx-auto"}>
             {children}
           </div>
         </div>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
@@ -7,6 +8,8 @@ import { ProjectGantt } from './pages/ProjectGantt';
 import { DriverLog } from './pages/DriverLog';
 import { Forms } from './pages/Forms';
 import { Financials } from './pages/Financials';
+import { Plans } from './pages/Plans';
+import { RFIs } from './pages/RFIs';
 
 const App: React.FC = () => {
   return (
@@ -15,7 +18,9 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/time" element={<TimeClock />} />
+          <Route path="/plans" element={<Plans />} />
           <Route path="/schedule" element={<ProjectGantt />} />
+          <Route path="/rfis" element={<RFIs />} />
           <Route path="/fleet" element={<DriverLog />} />
           <Route path="/forms" element={<Forms />} />
           <Route path="/financials" element={<Financials />} />

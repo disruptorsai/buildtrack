@@ -1,4 +1,5 @@
-import { User, UserRole, Project, Task, Notification, FormTemplate } from './types';
+
+import { User, UserRole, Project, Task, Notification, FormTemplate, Plan, FieldIssue, RFI, PlanFolder } from './types';
 
 export const CURRENT_USER: User = {
   id: 'u1',
@@ -40,6 +41,75 @@ export const PROJECTS: Project[] = [
     progress: 5,
     startDate: '2024-06-01',
     endDate: '2025-12-31'
+  }
+];
+
+export const PLAN_FOLDERS: PlanFolder[] = [
+  { id: 'arch', name: 'Architectural', count: 14 },
+  { id: 'struct', name: 'Structural', count: 8 },
+  { id: 'elec', name: 'Electrical', count: 5 },
+  { id: 'mech', name: 'Mechanical', count: 6 },
+];
+
+export const PLANS: Plan[] = [
+  {
+    id: 'pl1',
+    projectId: 'p1',
+    folderId: 'arch',
+    name: 'A-101 Ground Floor Plan',
+    version: 'v2.1',
+    imageUrl: 'https://images.unsplash.com/photo-1599700403969-fcc35f4f04c5?q=80&w=2574&auto=format&fit=crop', 
+    uploadDate: '2024-04-10'
+  },
+  {
+    id: 'pl2',
+    projectId: 'p1',
+    folderId: 'elec',
+    name: 'E-201 Electrical Rough-in',
+    version: 'v1.0',
+    imageUrl: 'https://images.unsplash.com/photo-1630327773229-9e8e25d6b4a3?q=80&w=2670&auto=format&fit=crop',
+    uploadDate: '2024-04-12'
+  }
+];
+
+export const FIELD_ISSUES: FieldIssue[] = [
+  {
+    id: 'fi1',
+    planId: 'pl1',
+    x: 45,
+    y: 30,
+    status: 'OPEN',
+    priority: 'HIGH',
+    category: 'Quality',
+    description: 'Conflict between ductwork and structural column. Field verify dimensions.',
+    assignedTo: 'Sarah J.',
+    dueDate: '2024-05-25'
+  },
+  {
+    id: 'fi2',
+    planId: 'pl1',
+    x: 72,
+    y: 65,
+    status: 'RESOLVED',
+    priority: 'MEDIUM',
+    category: 'Punch List',
+    description: 'Missing electrical outlet in reception area.',
+    assignedTo: 'Mike R.'
+  }
+];
+
+export const RFIS: RFI[] = [
+  {
+    id: 'rfi1',
+    projectId: 'p1',
+    number: '004',
+    subject: 'HVAC Duct Clash in Corridor 104',
+    question: 'The mechanical drawings show supply duct running through the shear wall at grid line C-4. Structural drawings do not show a penetration. Please clarify if a penetration is permitted or if duct should re-route.',
+    status: 'OPEN',
+    costImpact: 'Potential $2,500',
+    scheduleImpact: '2 Days',
+    assignedTo: 'Structural Engineer',
+    dueDate: '2024-05-20'
   }
 ];
 
