@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin, Clock, AlertTriangle, CheckCircle2, DollarSign, TrendingUp, Calendar, ArrowRight, User as UserIcon } from 'lucide-react';
+import { MapPin, Clock, AlertTriangle, CheckCircle2, DollarSign, TrendingUp, Calendar, ArrowRight, User as UserIcon, FileText, Wrench, Camera } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { CURRENT_USER, NOTIFICATIONS, PROJECTS } from '../constants';
 import { predictProjectRisks } from '../services/geminiService';
 
+// Activity feed data
+const ACTIVITY_FEED = [
+  { id: 1, user: 'Derek Sorensen', action: 'uploaded a safety inspection for', target: 'Eaglewood Retail', time: '2 hours ago', icon: FileText },
+  { id: 2, user: 'Cody Rasmussen', action: 'completed electrical rough-in at', target: 'Suite 103', time: '4 hours ago', icon: Wrench },
+  { id: 3, user: 'Marcus Jensen', action: 'added site photos to', target: 'Building B Foundation', time: '6 hours ago', icon: Camera },
+  { id: 4, user: 'Brent Kimball', action: 'responded to RFI #007 for', target: 'Fire Sprinkler Spacing', time: '1 day ago', icon: FileText },
+];
+
 export const Dashboard: React.FC = () => {
   const [insight, setInsight] = useState<string | null>(null);
   const [loadingInsight, setLoadingInsight] = useState(false);
+  const [showAllActivity, setShowAllActivity] = useState(false);
 
   useEffect(() => {
     // Simulate fetching an AI insight on mount
@@ -152,22 +161,28 @@ export const Dashboard: React.FC = () => {
           <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Activity</h2>
             <div className="space-y-4">
-              {[1, 2, 3].map((_, i) => (
-                <div key={i} className="flex gap-3 items-start pb-4 border-b border-slate-100 dark:border-slate-700 last:border-0 last:pb-0">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
-                    <UserIcon size={14} className="text-slate-500 dark:text-slate-400" />
+              {(showAllActivity ? ACTIVITY_FEED : ACTIVITY_FEED.slice(0, 3)).map((activity) => {
+                const IconComponent = activity.icon;
+                return (
+                  <div key={activity.id} className="flex gap-3 items-start pb-4 border-b border-slate-100 dark:border-slate-700 last:border-0 last:pb-0">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
+                      <IconComponent size={14} className="text-slate-500 dark:text-slate-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-900 dark:text-white">
+                        <span className="font-medium">{activity.user}</span> {activity.action} <span className="font-medium">{activity.target}</span>
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{activity.time}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-slate-900 dark:text-white">
-                      <span className="font-medium">Derek Sorensen</span> uploaded a safety inspection for <span className="font-medium">Eaglewood Retail</span>
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">2 hours ago</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
-            <button className="w-full mt-4 py-2 text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors flex items-center justify-center gap-1">
-              View All Activity <ArrowRight size={14} />
+            <button
+              onClick={() => setShowAllActivity(!showAllActivity)}
+              className="w-full mt-4 py-2 text-sm text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors flex items-center justify-center gap-1"
+            >
+              {showAllActivity ? 'Show Less' : 'View All Activity'} <ArrowRight size={14} className={showAllActivity ? 'rotate-90' : ''} />
             </button>
           </div>
         </div>

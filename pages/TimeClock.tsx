@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Clock, MapPin, Camera, AlertOctagon, Check, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Clock, MapPin, Camera, ShieldCheck, X, Image } from 'lucide-react';
 import clsx from 'clsx';
 import { PROJECTS } from '../constants';
 
@@ -11,10 +11,13 @@ export const TimeClock: React.FC = () => {
   const [accuracy, setAccuracy] = useState<number | null>(null);
   const [selectedProject, setSelectedProject] = useState<string>('');
   const [timeElapsed, setTimeElapsed] = useState(0);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Timer for duration when clocked in
   useEffect(() => {
-    let interval: any;
+    let interval: ReturnType<typeof setInterval>;
     if (status === 'IN') {
       interval = setInterval(() => {
         setTimeElapsed(prev => prev + 1);
@@ -41,10 +44,9 @@ export const TimeClock: React.FC = () => {
             setAccuracy(pos.coords.accuracy);
             setStatus('IN');
           },
-          (err) => {
-            console.error(err);
-            // Fallback for demo if permission denied or desktop
-            setLocation({ lat: 33.4484, lng: -112.0740 });
+          () => {
+            // Fallback for demo - North Salt Lake, UT coordinates
+            setLocation({ lat: 40.8473, lng: -111.9061 });
             setAccuracy(12);
             setStatus('IN');
           },
@@ -55,7 +57,26 @@ export const TimeClock: React.FC = () => {
       setStatus('OUT');
       setTimeElapsed(0);
       setLocation(null);
+      setPhotos([]);
     }
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPhotos(prev => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    setShowPhotoModal(false);
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -74,7 +95,7 @@ export const TimeClock: React.FC = () => {
         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
           Select Project / Cost Code
         </label>
-        <select 
+        <select
           disabled={status === 'IN'}
           value={selectedProject}
           onChange={(e) => setSelectedProject(e.target.value)}
@@ -101,7 +122,7 @@ export const TimeClock: React.FC = () => {
           disabled={status === 'VERIFYING' || (status === 'OUT' && !selectedProject)}
           className={clsx(
             "w-56 h-56 rounded-full flex flex-col items-center justify-center shadow-2xl transition-all duration-300 transform active:scale-95 border-8 relative z-10",
-            status === 'OUT' ? "bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:border-primary-100 group" : 
+            status === 'OUT' ? "bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:border-primary-100 group" :
             status === 'VERIFYING' ? "bg-slate-100 dark:bg-slate-800 border-primary-500 animate-pulse" :
             "bg-primary-500 border-primary-600"
           )}
@@ -112,7 +133,7 @@ export const TimeClock: React.FC = () => {
               <span className="text-lg font-bold text-slate-700 dark:text-slate-200 uppercase tracking-widest">Clock In</span>
             </>
           )}
-          
+
           {status === 'VERIFYING' && (
             <>
               <MapPin size={48} className="text-primary-500 mb-2 animate-bounce" />
@@ -146,15 +167,46 @@ export const TimeClock: React.FC = () => {
             <span className="text-slate-400 italic">Waiting for fix...</span>
           )}
         </div>
-        
+
         {location && (
           <div className="text-xs text-slate-400 font-mono bg-slate-50 dark:bg-slate-900 p-2 rounded">
             {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
           </div>
         )}
 
+        {/* Photos Section */}
+        {photos.length > 0 && (
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Job Site Photos ({photos.length})</p>
+            <div className="flex gap-2 flex-wrap">
+              {photos.map((photo, index) => (
+                <div key={index} className="relative w-16 h-16 rounded-lg overflow-hidden group">
+                  <img src={photo} alt={`Site photo ${index + 1}`} className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => removePhoto(index)}
+                    className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                  >
+                    <X size={16} className="text-white" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center">
-          <button className="flex items-center gap-2 text-primary-600 dark:text-primary-400 text-sm font-medium hover:underline">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handlePhotoUpload}
+            accept="image/*"
+            multiple
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 text-primary-600 dark:text-primary-400 text-sm font-medium hover:underline"
+          >
             <Camera size={16} />
             Add Job Site Photo
           </button>

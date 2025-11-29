@@ -1,23 +1,30 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Map as MapIcon, Plus, ScanEye, MousePointer2, Move, Type, Cloud, Ruler, 
-  ChevronRight, ChevronLeft, FolderOpen, Search, Filter, X,
+import {
+  Map as MapIcon, Plus, ScanEye, MousePointer2, Move, Type, Cloud, Ruler,
+  ChevronRight, ChevronLeft, FolderOpen, Search, Filter, X, Upload, Camera,
   AlertCircle, CheckCircle2, Clock, Calendar, User, MoreVertical, Trash2
 } from 'lucide-react';
 import { PLANS, FIELD_ISSUES, PROJECTS, PLAN_FOLDERS } from '../constants';
 import { analyzeBlueprint } from '../services/geminiService';
-import { FieldIssue, TaskPriority, TaskStatus } from '../types';
+import { FieldIssue, TaskPriority, TaskStatus, Plan } from '../types';
 import clsx from 'clsx';
 
 type Tool = 'SELECT' | 'PAN' | 'PIN' | 'CLOUD' | 'MEASURE';
+
+// Filter options interface
+interface FilterOptions {
+  status: 'ALL' | 'OPEN' | 'RESOLVED';
+  priority: 'ALL' | 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+}
 
 export const Plans: React.FC = () => {
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [activeFolderId, setActiveFolderId] = useState<string>('arch');
   const [issues, setIssues] = useState<FieldIssue[]>(FIELD_ISSUES);
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
-  
+  const [plans, setPlans] = useState<Plan[]>(PLANS);
+
   // Canvas State
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -29,9 +36,26 @@ export const Plans: React.FC = () => {
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  // Modal States
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({ status: 'ALL', priority: 'ALL' });
+  const [issuePhotos, setIssuePhotos] = useState<Record<string, string[]>>({});
+
+  // Refs
   const canvasRef = useRef<HTMLDivElement>(null);
-  const activePlan = PLANS.find(p => p.id === activePlanId);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  const activePlan = plans.find(p => p.id === activePlanId);
   const selectedIssue = issues.find(i => i.id === selectedIssueId);
+
+  // Filter issues based on filter options
+  const filteredIssues = issues.filter(issue => {
+    if (filterOptions.status !== 'ALL' && issue.status !== filterOptions.status) return false;
+    if (filterOptions.priority !== 'ALL' && issue.priority !== filterOptions.priority) return false;
+    return true;
+  });
 
   // --- Canvas Interaction Handlers ---
 
@@ -115,6 +139,77 @@ export const Plans: React.FC = () => {
     setIsAnalyzing(false);
   };
 
+  // --- Issue Management Handlers ---
+
+  const handleUpdateIssue = (field: keyof FieldIssue, value: string) => {
+    if (!selectedIssueId) return;
+    setIssues(prev => prev.map(issue =>
+      issue.id === selectedIssueId ? { ...issue, [field]: value } : issue
+    ));
+  };
+
+  const handleMarkResolved = () => {
+    if (!selectedIssueId) return;
+    setIssues(prev => prev.map(issue =>
+      issue.id === selectedIssueId ? { ...issue, status: issue.status === 'RESOLVED' ? 'OPEN' : 'RESOLVED' } : issue
+    ));
+  };
+
+  const handleDeleteIssue = () => {
+    if (!selectedIssueId) return;
+    setIssues(prev => prev.filter(issue => issue.id !== selectedIssueId));
+    setSelectedIssueId(null);
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || !selectedIssueId) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setIssuePhotos(prev => ({
+          ...prev,
+          [selectedIssueId]: [...(prev[selectedIssueId] || []), reader.result as string]
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleRemovePhoto = (photoIndex: number) => {
+    if (!selectedIssueId) return;
+    setIssuePhotos(prev => ({
+      ...prev,
+      [selectedIssueId]: (prev[selectedIssueId] || []).filter((_, i) => i !== photoIndex)
+    }));
+  };
+
+  // --- Plan Upload Handler ---
+
+  const handlePlanUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newPlan: Plan = {
+          id: `plan-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          projectId: 'p1',
+          name: file.name.replace(/\.[^/.]+$/, ''),
+          version: 'Rev A',
+          folderId: activeFolderId,
+          imageUrl: reader.result as string,
+          uploadDate: new Date().toISOString().split('T')[0]
+        };
+        setPlans(prev => [...prev, newPlan]);
+      };
+      reader.readAsDataURL(file);
+    });
+    setShowUploadModal(false);
+  };
+
   // --- Render Views ---
 
   if (activePlan) {
@@ -187,7 +282,7 @@ export const Plans: React.FC = () => {
                  />
 
                  {/* Render Pins */}
-                 {issues.filter(i => i.planId === activePlanId).map(issue => (
+                 {filteredIssues.filter(i => i.planId === activePlanId).map(issue => (
                     <div 
                        key={issue.id}
                        onClick={(e) => { e.stopPropagation(); setSelectedIssueId(issue.id); }}
@@ -236,64 +331,137 @@ export const Plans: React.FC = () => {
                     }`}>{selectedIssue.status}</span>
                  </div>
                  <div className="flex gap-1">
-                    <button className="p-1 hover:bg-slate-200 rounded"><MoreVertical size={16} /></button>
-                    <button onClick={() => setSelectedIssueId(null)} className="p-1 hover:bg-slate-200 rounded"><X size={16} /></button>
+                    <button onClick={handleDeleteIssue} className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-slate-400 hover:text-red-600" title="Delete Issue">
+                       <Trash2 size={16} />
+                    </button>
+                    <button onClick={() => setSelectedIssueId(null)} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded">
+                       <X size={16} />
+                    </button>
                  </div>
               </div>
 
               <div className="p-6 space-y-6 flex-1">
                  <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Description</label>
-                    <textarea 
-                       className="w-full text-sm bg-transparent border-none p-0 focus:ring-0 resize-none font-medium text-slate-900 dark:text-white" 
+                    <textarea
+                       className="w-full text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 focus:ring-2 focus:ring-primary-500 outline-none resize-none font-medium text-slate-900 dark:text-white"
                        rows={3}
-                       defaultValue={selectedIssue.description}
+                       value={selectedIssue.description}
+                       onChange={(e) => handleUpdateIssue('description', e.target.value)}
                     />
                  </div>
 
                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
                        <User size={18} className="text-slate-400" />
                        <div className="flex-1">
                           <p className="text-xs text-slate-500">Assignee</p>
-                          <p className="text-sm font-medium">{selectedIssue.assignedTo || 'Unassigned'}</p>
+                          <select
+                            value={selectedIssue.assignedTo || ''}
+                            onChange={(e) => handleUpdateIssue('assignedTo', e.target.value)}
+                            className="w-full text-sm font-medium bg-transparent border-none p-0 focus:ring-0 text-slate-900 dark:text-white cursor-pointer"
+                          >
+                            <option value="">Unassigned</option>
+                            <option value="Derek Sorensen">Derek Sorensen</option>
+                            <option value="Cody Rasmussen">Cody Rasmussen</option>
+                            <option value="Marcus Jensen">Marcus Jensen</option>
+                            <option value="Brent Kimball">Brent Kimball</option>
+                          </select>
                        </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
                        <Calendar size={18} className="text-slate-400" />
                        <div className="flex-1">
                           <p className="text-xs text-slate-500">Due Date</p>
-                          <p className="text-sm font-medium">{selectedIssue.dueDate || 'Set Date'}</p>
+                          <input
+                            type="date"
+                            value={selectedIssue.dueDate || ''}
+                            onChange={(e) => handleUpdateIssue('dueDate', e.target.value)}
+                            className="w-full text-sm font-medium bg-transparent border-none p-0 focus:ring-0 text-slate-900 dark:text-white cursor-pointer"
+                          />
                        </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
                        <div className={`w-4 h-4 rounded-full ${
-                          selectedIssue.priority === 'HIGH' ? 'bg-orange-500' : 'bg-slate-400'
+                          selectedIssue.priority === 'CRITICAL' ? 'bg-red-600' :
+                          selectedIssue.priority === 'HIGH' ? 'bg-orange-500' :
+                          selectedIssue.priority === 'MEDIUM' ? 'bg-amber-500' :
+                          'bg-slate-400'
                        }`}></div>
                        <div className="flex-1">
                           <p className="text-xs text-slate-500">Priority</p>
-                          <p className="text-sm font-medium">{selectedIssue.priority}</p>
+                          <select
+                            value={selectedIssue.priority}
+                            onChange={(e) => handleUpdateIssue('priority', e.target.value)}
+                            className="w-full text-sm font-medium bg-transparent border-none p-0 focus:ring-0 text-slate-900 dark:text-white cursor-pointer"
+                          >
+                            <option value="CRITICAL">Critical</option>
+                            <option value="HIGH">High</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="LOW">Low</option>
+                          </select>
                        </div>
                     </div>
                  </div>
 
-                 {/* Photos Section Placeholder */}
+                 {/* Photos Section */}
                  <div>
                     <div className="flex justify-between items-center mb-2">
-                       <label className="text-xs font-bold text-slate-500 uppercase">Photos (0)</label>
-                       <button className="text-primary-600 text-xs font-bold flex items-center gap-1"><Plus size={12} /> Add</button>
+                       <label className="text-xs font-bold text-slate-500 uppercase">
+                         Photos ({(issuePhotos[selectedIssue.id] || []).length})
+                       </label>
+                       <input
+                         type="file"
+                         ref={photoInputRef}
+                         onChange={handlePhotoUpload}
+                         accept="image/*"
+                         multiple
+                         className="hidden"
+                       />
+                       <button
+                         onClick={() => photoInputRef.current?.click()}
+                         className="text-primary-600 text-xs font-bold flex items-center gap-1 hover:underline"
+                       >
+                         <Camera size={12} /> Add
+                       </button>
                     </div>
-                    <div className="h-20 bg-slate-50 dark:bg-slate-800 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 text-xs">
-                       No photos attached
-                    </div>
+                    {(issuePhotos[selectedIssue.id] || []).length > 0 ? (
+                      <div className="flex gap-2 flex-wrap">
+                        {(issuePhotos[selectedIssue.id] || []).map((photo, index) => (
+                          <div key={index} className="relative w-16 h-16 rounded-lg overflow-hidden group">
+                            <img src={photo} alt={`Issue photo ${index + 1}`} className="w-full h-full object-cover" />
+                            <button
+                              onClick={() => handleRemovePhoto(index)}
+                              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                            >
+                              <X size={16} className="text-white" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => photoInputRef.current?.click()}
+                        className="h-20 bg-slate-50 dark:bg-slate-800 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 text-xs cursor-pointer hover:border-primary-300 hover:text-primary-500 transition-colors"
+                      >
+                        Click to add photos
+                      </div>
+                    )}
                  </div>
               </div>
 
               <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-                 <button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-bold text-sm shadow-sm transition-colors">
-                    Mark as Resolved
+                 <button
+                   onClick={handleMarkResolved}
+                   className={`w-full py-2 rounded-lg font-bold text-sm shadow-sm transition-colors ${
+                     selectedIssue.status === 'RESOLVED'
+                       ? 'bg-amber-500 hover:bg-amber-600 text-white'
+                       : 'bg-green-600 hover:bg-green-700 text-white'
+                   }`}
+                 >
+                    {selectedIssue.status === 'RESOLVED' ? 'Reopen Issue' : 'Mark as Resolved'}
                  </button>
               </div>
            </div>
@@ -341,8 +509,19 @@ export const Plans: React.FC = () => {
             ))}
          </div>
          <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-            <button className="w-full bg-secondary-900 dark:bg-secondary-700 text-white py-2 rounded-lg text-sm font-bold shadow hover:bg-secondary-800 flex items-center justify-center gap-2">
-               <Plus size={16} /> Upload Plans
+            <input
+              type="file"
+              ref={uploadInputRef}
+              onChange={handlePlanUpload}
+              accept="image/*,.pdf"
+              multiple
+              className="hidden"
+            />
+            <button
+              onClick={() => uploadInputRef.current?.click()}
+              className="w-full bg-secondary-900 dark:bg-secondary-700 text-white py-2 rounded-lg text-sm font-bold shadow hover:bg-secondary-800 flex items-center justify-center gap-2"
+            >
+               <Upload size={16} /> Upload Plans
             </button>
          </div>
       </div>
@@ -354,13 +533,22 @@ export const Plans: React.FC = () => {
                {PLAN_FOLDERS.find(f => f.id === activeFolderId)?.name} Drawings
             </h1>
             <div className="flex gap-2">
-               <button className="p-2 text-slate-500 hover:bg-white rounded-lg"><Filter size={18} /></button>
+               <button
+                 onClick={() => setShowFilterModal(true)}
+                 className={`p-2 rounded-lg transition-colors ${
+                   filterOptions.status !== 'ALL' || filterOptions.priority !== 'ALL'
+                     ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
+                     : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800'
+                 }`}
+               >
+                 <Filter size={18} />
+               </button>
             </div>
          </div>
 
          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {PLANS.filter(p => p.folderId === activeFolderId).length > 0 ? (
-               PLANS.filter(p => p.folderId === activeFolderId).map(plan => (
+            {plans.filter(p => p.folderId === activeFolderId).length > 0 ? (
+               plans.filter(p => p.folderId === activeFolderId).map(plan => (
                   <div 
                      key={plan.id} 
                      onClick={() => setActivePlanId(plan.id)}
@@ -378,12 +566,12 @@ export const Plans: React.FC = () => {
                         
                         <div className="flex gap-2 mt-4">
                            <div className="flex-1 flex items-center justify-center gap-1 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs py-1 rounded">
-                              <AlertCircle size={10} /> 
-                              {issues.filter(i => i.planId === plan.id && i.status === 'OPEN').length}
+                              <AlertCircle size={10} />
+                              {filteredIssues.filter(i => i.planId === plan.id && i.status === 'OPEN').length}
                            </div>
                            <div className="flex-1 flex items-center justify-center gap-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs py-1 rounded">
                               <CheckCircle2 size={10} />
-                              {issues.filter(i => i.planId === plan.id && i.status === 'RESOLVED').length}
+                              {filteredIssues.filter(i => i.planId === plan.id && i.status === 'RESOLVED').length}
                            </div>
                         </div>
                      </div>
@@ -398,6 +586,65 @@ export const Plans: React.FC = () => {
             )}
          </div>
       </div>
+
+      {/* Filter Modal */}
+      {showFilterModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowFilterModal(false)}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Filter Issues</h2>
+              <button onClick={() => setShowFilterModal(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded">
+                <X size={20} className="text-slate-500" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Status</label>
+                <select
+                  value={filterOptions.status}
+                  onChange={(e) => setFilterOptions(prev => ({ ...prev, status: e.target.value as FilterOptions['status'] }))}
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="OPEN">Open</option>
+                  <option value="RESOLVED">Resolved</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Priority</label>
+                <select
+                  value={filterOptions.priority}
+                  onChange={(e) => setFilterOptions(prev => ({ ...prev, priority: e.target.value as FilterOptions['priority'] }))}
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                >
+                  <option value="ALL">All Priorities</option>
+                  <option value="CRITICAL">Critical</option>
+                  <option value="HIGH">High</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="LOW">Low</option>
+                </select>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => {
+                    setFilterOptions({ status: 'ALL', priority: 'ALL' });
+                    setShowFilterModal(false);
+                  }}
+                  className="flex-1 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 text-sm font-medium"
+                >
+                  Clear Filters
+                </button>
+                <button
+                  onClick={() => setShowFilterModal(false)}
+                  className="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg text-sm font-bold"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

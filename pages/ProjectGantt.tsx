@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Users, DollarSign, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Users, DollarSign, Calendar, X } from 'lucide-react';
 import { TASKS, PROJECTS } from '../constants';
+import { Task } from '../types';
 
 export const ProjectGantt: React.FC = () => {
   const [zoom, setZoom] = useState<'WEEK' | 'MONTH'>('WEEK');
+  const [tasks, setTasks] = useState<Task[]>(TASKS);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTask, setNewTask] = useState({
+    name: '',
+    startDate: '2024-05-15',
+    durationDays: 5,
+    requiredCrew: 4,
+    budget: 10000
+  });
   
   // Simple layout calculations for demo
   const DAY_WIDTH = zoom === 'WEEK' ? 60 : 20;
@@ -24,6 +34,33 @@ export const ProjectGantt: React.FC = () => {
     d.setDate(d.getDate() + i);
     return d;
   });
+
+  const handleAddTask = () => {
+    if (!newTask.name.trim()) return;
+
+    const task: Task = {
+      id: `task-${Date.now()}`,
+      projectId: 'p1',
+      name: newTask.name,
+      startDate: newTask.startDate,
+      durationDays: newTask.durationDays,
+      progress: 0,
+      assignedCrew: 0,
+      requiredCrew: newTask.requiredCrew,
+      budget: newTask.budget,
+      spent: 0
+    };
+
+    setTasks(prev => [...prev, task]);
+    setNewTask({
+      name: '',
+      startDate: '2024-05-15',
+      durationDays: 5,
+      requiredCrew: 4,
+      budget: 10000
+    });
+    setShowAddModal(false);
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-140px)]">
@@ -53,7 +90,13 @@ export const ProjectGantt: React.FC = () => {
         <div className="flex border-b border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-50 dark:bg-slate-900">
           <div className="w-64 shrink-0 p-4 border-r border-slate-200 dark:border-slate-700 font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
             <span>Task Name</span>
-            <button className="text-primary-600 hover:bg-primary-50 p-1 rounded"><Plus size={16} /></button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/30 p-1 rounded"
+              title="Add Task"
+            >
+              <Plus size={16} />
+            </button>
           </div>
           <div className="flex-1 overflow-x-auto hide-scrollbar">
             <div className="flex" style={{ width: DAYS_TO_SHOW * DAY_WIDTH }}>
@@ -76,7 +119,7 @@ export const ProjectGantt: React.FC = () => {
           <div className="flex relative">
             {/* Sidebar Columns */}
             <div className="w-64 shrink-0 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 z-10 sticky left-0">
-              {TASKS.map((task) => (
+              {tasks.map((task) => (
                 <div key={task.id} className="h-[60px] border-b border-slate-100 dark:border-slate-700 px-4 flex flex-col justify-center hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
                   <div className="font-medium text-slate-800 dark:text-slate-200 truncate">{task.name}</div>
                   <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
@@ -109,7 +152,7 @@ export const ProjectGantt: React.FC = () => {
 
               {/* Task Bars */}
               <div className="relative pt-0">
-                {TASKS.map((task, i) => {
+                {tasks.map((task, i) => {
                   const x = getX(task.startDate);
                   const w = task.durationDays * DAY_WIDTH;
                   const isOverBudget = (task.spent / task.budget) > (task.progress / 100);
@@ -152,6 +195,91 @@ export const ProjectGantt: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Task Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowAddModal(false)}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Add New Task</h2>
+              <button onClick={() => setShowAddModal(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded">
+                <X size={20} className="text-slate-500" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Task Name</label>
+                <input
+                  type="text"
+                  value={newTask.name}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="e.g., Install HVAC Ductwork"
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Start Date</label>
+                  <input
+                    type="date"
+                    value={newTask.startDate}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, startDate: e.target.value }))}
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Duration (days)</label>
+                  <input
+                    type="number"
+                    value={newTask.durationDays}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, durationDays: parseInt(e.target.value) || 1 }))}
+                    min="1"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Required Crew</label>
+                  <input
+                    type="number"
+                    value={newTask.requiredCrew}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, requiredCrew: parseInt(e.target.value) || 1 }))}
+                    min="1"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Budget ($)</label>
+                  <input
+                    type="number"
+                    value={newTask.budget}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, budget: parseInt(e.target.value) || 0 }))}
+                    min="0"
+                    step="1000"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddTask}
+                  disabled={!newTask.name.trim()}
+                  className="flex-1 bg-primary-500 hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2 rounded-lg text-sm font-bold"
+                >
+                  Add Task
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
